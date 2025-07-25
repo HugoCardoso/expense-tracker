@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expense Tracker</title>
+  <title>Registo Financeiro</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.0/css/all.css">
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
       font-family: 'Poppins', sans-serif;
-
       background: linear-gradient(135deg, #0d1b2a, #1b263b, #2b394f);
       background-size: 400% 400%;
       animation: gradientShift 15s ease infinite;
@@ -33,7 +37,7 @@
       border: 1.5px solid #00bcd4;
       border-radius: 16px;
       padding: 24px;
-      width: 90%;
+      width: 100%;
       max-width: 400px;
       box-shadow: 0 0 8px rgba(0, 188, 212, 0.2);
       backdrop-filter: blur(6px);
@@ -46,21 +50,9 @@
       color: #00e0ff;
     }
 
-    .logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 10px;
-    }
-
-    .logo svg {
-      width: 40px;
-      height: 40px;
-      fill: #00e0ff;
-    }
-
     label {
       display: block;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       font-size: 14px;
     }
 
@@ -68,7 +60,7 @@
       width: 100%;
       padding: 10px;
       margin-top: 4px;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
       border: none;
       border-radius: 8px;
       font-size: 14px;
@@ -79,10 +71,37 @@
       color: #ffffff;
     }
 
-    input:focus, select:focus {
-      outline: none;
-      border: 1px solid #00e0ff;
+    .icon-options, .type-options {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .icon-btn, .type-btn {
+      flex: 1;
+      padding: 16px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      border: 2px solid transparent;
+      color: #ffffff;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 20px;
+    }
+
+    .icon-btn i, .type-btn i {
+      pointer-events: none;
+    }
+
+    .icon-btn:hover, .type-btn:hover {
       background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .selected {
+      border-color: #00e0ff;
+      background-color: rgba(0, 224, 255, 0.2);
     }
 
     button {
@@ -101,46 +120,71 @@
       text-align: center;
       margin-top: 10px;
       font-weight: bold;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
   <form id="registo-form">
-    <div class="logo">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 2L2 7h20L12 2zm0 2.18L18.09 7H5.91L12 4.18zM2 9v11h20V9H2zm2 2h16v7H4v-7z"/>
-      </svg>
-    </div>
     <h2>Registar Movimento</h2>
+
     <label>Data:
       <input type="date" name="data" required>
     </label>
+
     <label>Descrição:
       <input type="text" name="descricao" required>
     </label>
-    <label>Categoria:
-      <input type="text" name="categoria" required>
-    </label>
-    <label>Tipo:
-      <select name="tipo" required>
-        <option value="receita">Receita</option>
-        <option value="despesa">Despesa</option>
-      </select>
-    </label>
+
+    <label>Categoria:</label>
+    <div class="icon-options" id="categoria-opcoes">
+      <div class="icon-btn" data-value="Alimentação" title="Alimentação"><i class="fas fa-utensils"></i></div>
+      <div class="icon-btn" data-value="Empresa" title="Empresa"><i class="fas fa-briefcase"></i></div>
+      <div class="icon-btn" data-value="Income" title="Income"><i class="fas fa-coins"></i></div>
+      <div class="icon-btn" data-value="Outros" title="Outros"><i class="fas fa-ellipsis-h"></i></div>
+    </div>
+    <input type="hidden" name="categoria" id="categoria">
+
+    <label>Tipo:</label>
+    <div class="type-options" id="tipo-opcoes">
+      <div class="type-btn" data-value="receita" title="Entrada"><i class="fas fa-circle-plus"></i></div>
+      <div class="type-btn" data-value="despesa" title="Saída"><i class="fas fa-circle-minus"></i></div>
+    </div>
+    <input type="hidden" name="tipo" id="tipo">
+
     <label>Valor (€):
       <input type="number" step="0.01" name="valor" required>
     </label>
+
     <label>Anexar fatura:
       <input type="file" name="ficheiro" accept="image/*,.pdf">
     </label>
+
     <label>Token de validação:
       <input type="password" name="token" required>
     </label>
+
     <button type="submit">Enviar</button>
     <p id="mensagem"></p>
   </form>
 
   <script>
+    document.querySelectorAll('.icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('categoria').value = btn.dataset.value;
+      });
+    });
+
+    document.querySelectorAll('.type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('tipo').value = btn.dataset.value;
+      });
+    });
+
     const form = document.getElementById('registo-form');
     const mensagem = document.getElementById('mensagem');
 
@@ -167,10 +211,18 @@
         });
 
         const result = await response.json();
-        mensagem.innerText = result.status === 'success' ? 'Movimento registado com sucesso!' : 'Erro: ' + result.message;
-        if (result.status === 'success') form.reset();
+        if (result.status === 'success') {
+          mensagem.style.color = '#00ffcc';
+          mensagem.innerText = '✅ Movimento registado com sucesso!';
+          form.reset();
+          document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+        } else {
+          mensagem.style.color = '#ff5555';
+          mensagem.innerText = '❌ Erro: ' + result.message;
+        }
       } catch (err) {
-        mensagem.innerText = 'Erro ao enviar: ' + err.message;
+        mensagem.style.color = '#ff5555';
+        mensagem.innerText = '❌ Erro ao enviar: ' + err.message;
       }
     });
 
