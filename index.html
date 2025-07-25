@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registo Financeiro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+
+      background: linear-gradient(135deg, #0d1b2a, #1b263b, #2b394f);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    form {
+      background-color: rgba(20, 30, 50, 0.6);
+      border: 1.5px solid #00bcd4;
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 8px rgba(0, 188, 212, 0.2);
+      backdrop-filter: blur(6px);
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #00e0ff;
+    }
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .logo svg {
+      width: 40px;
+      height: 40px;
+      fill: #00e0ff;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    input, select {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border: 1px solid #00e0ff;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    button {
+      background-color: #00e0ff;
+      color: #000000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #00c6e0;
+    }
+
+    #mensagem {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <form id="registo-form">
+    <div class="logo">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2L2 7h20L12 2zm0 2.18L18.09 7H5.91L12 4.18zM2 9v11h20V9H2zm2 2h16v7H4v-7z"/>
+      </svg>
+    </div>
+    <h2>Registar Movimento</h2>
+    <label>Data:
+      <input type="date" name="data" required>
+    </label>
+    <label>Descrição:
+      <input type="text" name="descricao" required>
+    </label>
+    <label>Categoria:
+      <input type="text" name="categoria" required>
+    </label>
+    <label>Tipo:
+      <select name="tipo" required>
+        <option value="receita">Receita</option>
+        <option value="despesa">Despesa</option>
+      </select>
+    </label>
+    <label>Valor (€):
+      <input type="number" step="0.01" name="valor" required>
+    </label>
+    <label>Anexar fatura:
+      <input type="file" name="ficheiro" accept="image/*,.pdf">
+    </label>
+    <button type="submit">Enviar</button>
+    <p id="mensagem"></p>
+  </form>
+
+  <script>
+    const form = document.getElementById('registo-form');
+    const mensagem = document.getElementById('mensagem');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      const ficheiroInput = form.querySelector('input[name="ficheiro"]');
+      const file = ficheiroInput.files[0];
+
+      if (file) {
+        const base64 = await toBase64(file);
+        data.ficheiroBase64 = base64;
+        data.ficheiroNome = file.name;
+        data.ficheiroTipo = file.type;
+      }
+
+      try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbz236l4Ny4h3ZKHMSIN69_e4WOI6TBvaFg-OP46D9pWFk5eieMDZSTyv6ObxM17qNWMNg/exec', {
+          method: 'POST',
+          body: new URLSearchParams(data)
+        });
+
+        const result = await response.json();
+        mensagem.innerText = result.status === 'success' ? 'Movimento registado com sucesso!' : 'Erro: ' + result.message;
+        if (result.status === 'success') form.reset();
+      } catch (err) {
+        mensagem.innerText = 'Erro ao enviar: ' + err.message;
+      }
+    });
+
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+  </script>
+</body>
+</html>
