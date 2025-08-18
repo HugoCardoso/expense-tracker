@@ -6,7 +6,6 @@
   <title>Registo Financeiro</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.0/css/all.css">
-
   <style>
     * {
       box-sizing: border-box;
@@ -24,6 +23,7 @@
       justify-content: center;
       align-items: center;
       color: #ffffff;
+      flex-direction: column;
     }
 
     @keyframes gradientShift {
@@ -122,6 +122,16 @@
       font-weight: bold;
       font-size: 14px;
     }
+
+    .drive-link {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #88e0ff;
+      text-decoration: none;
+    }
+    .drive-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -167,6 +177,10 @@
     <button type="submit">Enviar</button>
     <p id="mensagem"></p>
   </form>
+
+  <a href="https://docs.google.com/spreadsheets/d/12o0NvybQQb-fPxON_1DUG3TkoqyL5i7oo-sAn5cI_pw/edit" target="_blank" class="drive-link">
+    📄 Ver folha de registos no Google Sheets
+  </a>
 
   <script>
     document.querySelectorAll('.icon-btn').forEach(btn => {
@@ -216,6 +230,8 @@
           mensagem.innerText = '✅ Movimento registado com sucesso!';
           form.reset();
           document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+          document.getElementById('categoria').value = '';
+          document.getElementById('tipo').value = '';
         } else {
           mensagem.style.color = '#ff5555';
           mensagem.innerText = '❌ Erro: ' + result.message;
