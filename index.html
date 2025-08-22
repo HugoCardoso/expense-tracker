@@ -6,6 +6,7 @@
   <title>Registo Financeiro</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.0/css/all.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     * {
       box-sizing: border-box;
@@ -139,7 +140,7 @@
     <h2>Registar Movimento</h2>
 
     <label>Data:
-      <input type="date" name="data" required>
+      <input type="text" id="data" name="data" placeholder="Seleciona uma data" required>
     </label>
 
     <label>Descrição:
@@ -182,7 +183,13 @@
     📄 Ver folha de registos no Google Sheets
   </a>
 
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
+    flatpickr("#data", {
+      dateFormat: "Y-m-d",
+      allowInput: true
+    });
+
     document.querySelectorAll('.icon-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('selected'));
