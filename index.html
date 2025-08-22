@@ -57,6 +57,24 @@
       font-size: 14px;
     }
 
+    .date-container {
+      position: relative;
+    }
+
+    .date-container input {
+      width: 100%;
+      padding-right: 40px;
+    }
+
+    .calendar-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #00e0ff;
+      cursor: pointer;
+    }
+
     input, select, button {
       width: 100%;
       padding: 10px;
@@ -139,9 +157,11 @@
   <form id="registo-form">
     <h2>Registar Movimento</h2>
 
-    <label>Data:
+    <label>Data:</label>
+    <div class="date-container">
       <input type="text" id="data" name="data" placeholder="Seleciona uma data" required>
-    </label>
+      <i class="fas fa-calendar-alt calendar-icon" id="openCalendar"></i>
+    </div>
 
     <label>Descrição:
       <input type="text" name="descricao" required>
@@ -157,106 +177,4 @@
     <input type="hidden" name="categoria" id="categoria">
 
     <label>Tipo:</label>
-    <div class="type-options" id="tipo-opcoes">
-      <div class="type-btn" data-value="receita" title="Entrada"><i class="fas fa-circle-plus"></i></div>
-      <div class="type-btn" data-value="despesa" title="Saída"><i class="fas fa-circle-minus"></i></div>
-    </div>
-    <input type="hidden" name="tipo" id="tipo">
-
-    <label>Valor (€):
-      <input type="number" step="0.01" name="valor" required>
-    </label>
-
-    <label>Anexar fatura:
-      <input type="file" name="ficheiro" accept="image/*,.pdf">
-    </label>
-
-    <label>Token de validação:
-      <input type="password" name="token" required>
-    </label>
-
-    <button type="submit">Enviar</button>
-    <p id="mensagem"></p>
-  </form>
-
-  <a href="https://docs.google.com/spreadsheets/d/12o0NvybQQb-fPxON_1DUG3TkoqyL5i7oo-sAn5cI_pw/edit" target="_blank" class="drive-link">
-    📄 Ver folha de registos no Google Sheets
-  </a>
-
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script>
-    flatpickr("#data", {
-      dateFormat: "Y-m-d",
-      allowInput: true
-    });
-
-    document.querySelectorAll('.icon-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        document.getElementById('categoria').value = btn.dataset.value;
-      });
-    });
-
-    document.querySelectorAll('.type-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        document.getElementById('tipo').value = btn.dataset.value;
-      });
-    });
-
-    const form = document.getElementById('registo-form');
-    const mensagem = document.getElementById('mensagem');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-
-      const ficheiroInput = form.querySelector('input[name="ficheiro"]');
-      const file = ficheiroInput.files[0];
-
-      if (file) {
-        const base64 = await toBase64(file);
-        data.ficheiroBase64 = base64;
-        data.ficheiroNome = file.name;
-        data.ficheiroTipo = file.type;
-      }
-
-      try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbz236l4Ny4h3ZKHMSIN69_e4WOI6TBvaFg-OP46D9pWFk5eieMDZSTyv6ObxM17qNWMNg/exec', {
-          method: 'POST',
-          body: new URLSearchParams(data)
-        });
-
-        const result = await response.json();
-        if (result.status === 'success') {
-          mensagem.style.color = '#00ffcc';
-          mensagem.innerText = '✅ Movimento registado com sucesso!';
-          form.reset();
-          document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
-          document.getElementById('categoria').value = '';
-          document.getElementById('tipo').value = '';
-        } else {
-          mensagem.style.color = '#ff5555';
-          mensagem.innerText = '❌ Erro: ' + result.message;
-        }
-      } catch (err) {
-        mensagem.style.color = '#ff5555';
-        mensagem.innerText = '❌ Erro ao enviar: ' + err.message;
-      }
-    });
-
-    function toBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-      });
-    }
-  </script>
-</body>
-</html>
+    <div class="
